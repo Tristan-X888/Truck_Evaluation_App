@@ -1,4 +1,3 @@
-
 import streamlit as st
 import pandas as pd
 import plotly.express as px
@@ -84,9 +83,18 @@ if uploaded_files:
             (combined["ownership_class"].isin(ownership_filter))
         ]
 
-        st.dataframe(filtered.sort_values(by="evaluation_decision"))
+        # Show three sections explicitly
+        st.subheader("✅ Trucks to KEEP")
+        st.dataframe(filtered[filtered["evaluation_decision"] == "KEEP"])
+
+        st.subheader("⚠️ Trucks to INSPECT")
+        st.dataframe(filtered[filtered["evaluation_decision"] == "INSPECT"])
+
+        st.subheader("❌ Trucks to SELL")
+        st.dataframe(filtered[filtered["evaluation_decision"] == "SELL"])
 
         # Charts
+        st.markdown("### 📊 Summary Charts")
         col1, col2 = st.columns(2)
         with col1:
             pie_chart = px.pie(filtered, names="evaluation_decision", title="Truck Decision Distribution")
@@ -99,7 +107,7 @@ if uploaded_files:
 
         st.line_chart(filtered.set_index("unit_id_clean")[["total_company_cost", "total_distance_km"]])
 
-        # ✅ Correct Excel Export
+        # Export filtered data to Excel
         st.markdown("### 📥 Export Filtered Results")
         buffer = io.BytesIO()
         filtered.to_excel(buffer, index=False, engine='openpyxl')
