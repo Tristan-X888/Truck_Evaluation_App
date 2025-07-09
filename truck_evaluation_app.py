@@ -2,6 +2,7 @@
 import streamlit as st
 import pandas as pd
 import plotly.express as px
+import io
 
 st.set_page_config(page_title="Truck Evaluation Dashboard", layout="wide")
 
@@ -98,10 +99,18 @@ if uploaded_files:
 
         st.line_chart(filtered.set_index("unit_id_clean")[["total_company_cost", "total_distance_km"]])
 
-        # Export to Excel
+        # ✅ Correct Excel Export
         st.markdown("### 📥 Export Filtered Results")
-        export_file = filtered.to_excel(index=False, engine='openpyxl')
-        st.download_button("Download as Excel", data=export_file, file_name="filtered_truck_evaluation.xlsx")
+        buffer = io.BytesIO()
+        filtered.to_excel(buffer, index=False, engine='openpyxl')
+        buffer.seek(0)
+
+        st.download_button(
+            label="Download as Excel",
+            data=buffer,
+            file_name="filtered_truck_evaluation.xlsx",
+            mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        )
 
     except Exception as e:
         st.error(f"❌ Error: {e}")
